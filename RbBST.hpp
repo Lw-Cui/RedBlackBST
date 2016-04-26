@@ -35,7 +35,60 @@ public:
 		insert_fixup(z);
 	}
 
+	void del(sptr z) {
+		sptr successor;
+		sptr breaker; // the node that breaks the rule
+		ctype origin_color = successor->color;
+		if (z->left == nil) {
+			// z only has rightson
+			breaker = z->right;
+			transplant(z, z->right);
+		} else if (z->right == nil) {
+			// z only has leftson
+			breaker = z->left;
+			transplant(z, z->left);
+		} else {
+			// z has two son
+			successor = minimum(z->right);
+			origin_color = successor->color;
+			breaker = successor->right;
+			sptr parent{successor->parent.lock()};
+			if (parent != z) {
+				// if successor isn't adjacent to z
+				transplant(successor, successor->right);
+				successor->right = z->right;
+				successor->right->parent = successor;
+			}
+			transplant(z, successor);
+			successor->left = z->left;
+			successor->left->parent = successor;
+			successor->color = z->color;
+		}
+		if (origin_color == ctype::BLACK)
+			// we regard breaker has another "black" color,
+			// which occupied the position of successor
+			delete_fixup(breaker);
+	}
+
 private:
+	void delete_fixup(sptr x) {
+
+	}
+
+	sptr minimum(sptr x) {
+		while (x->left != nil) x = x->left;
+		return x;
+	}
+
+	// use subtree v to replace subtree u
+	void transplant(sptr u, sptr v) {
+		sptr parent{u->parent.lock()};
+		if (parent == nil) root = v;
+		else if (u == parent->left) parent->left = v;
+		else parent->right = v;
+		v->parent = parent;
+	}
+
 	void insert_fixup(sptr z) {
 		sptr zp{z->parent.lock()}; 
 		while (zp->color == ctype::RED) {
