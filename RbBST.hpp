@@ -1,5 +1,6 @@
 _Pragma("once")
 #include <memory>
+#include <vector>
 
 struct Node;
 using sptr = std::shared_ptr<Node>;
@@ -11,13 +12,27 @@ public:
 		:data{d}, parent{p}, left{l}, right{r}, color{c} {}
 	Node(ctype c):color{c} {}
 	int data;
+	int count = 1;
 	wptr parent;
 	sptr left, right;
 	ctype color;
 };
 
+
 class RedBlackBST {
 public:
+	std::vector<int> get_data() {
+		std::vector<int> v;
+		get_data(root, v);
+		return std::move(v);
+	}
+	void get_data(sptr pos, std::vector<int> &v) {
+		if (pos == nil) return;
+		get_data(pos->left, v);
+		for (int i = 0; i < pos->count; i++)
+			v.push_back(pos->data);
+		get_data(pos->right, v);
+	}
 	RedBlackBST(): nil{new Node{ctype::BLACK}} {
 		root = nil;
 	}
@@ -25,8 +40,13 @@ public:
 		sptr y{nil}, x{root};
 		while (x != nil) {
 			y = x;
-			if (d < x->data) x = x->left;
-			else x = x->right;
+			if (d < x->data) {
+				x = x->left;
+			} else if (d > x->data) {
+				x = x->right;
+			} else {
+				x->count++; return;
+			}
 		}
 		sptr z{new Node{d, y, nil, nil}};
 		if (y == nil) root = z;
