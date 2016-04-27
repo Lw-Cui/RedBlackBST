@@ -72,7 +72,76 @@ public:
 
 private:
 	void delete_fixup(sptr x) {
-
+		// x has extra black color
+		while (x != root && x->color == ctype::BLACK) {
+		// If x->color == RED then it means x is a red-black node.
+		// We could break the loop and set it to black
+			sptr parent; sptr brother;
+			if (x == parent->left) {
+			// x is leftson
+				parent = x->parent.lock();
+				brother = parent->right;
+				if (brother->color == ctype::RED) {
+				// Case 1: x's brother is red. It could transfer to Case 2/3/4.
+					brother->color = ctype::BLACK;
+					parent->color = ctype::RED;
+					left_rotate(parent);
+					brother = parent->right;
+				}
+				if (brother->left->color == ctype::BLACK 
+					&& brother->right->color == ctype::BLACK) {
+				// Case 2: black brother and black brotherson.
+					brother->color = ctype::RED;
+					x = parent;
+				} else {
+				// Case 3/4: black brother and one or two red brotherson.
+					if (brother->right->color == ctype::BLACK) {
+					// Case 3: black rightson and red leftson
+						brother->left->color = ctype::BLACK;
+						brother->color = ctype::RED;
+						right_rotate(brother);
+					}
+					// Case 4: black brother and red left brotherson.
+					brother->color = parent->color;
+					parent->color = ctype::BLACK;
+					brother->right->color = ctype::BLACK;
+					left_rotate(parent);
+					x = root;
+				}
+			} else {
+			// x is leftson, same as above clause.
+				parent = x->parent.lock();
+				brother = parent->left;
+				if (brother->color == ctype::RED) {
+				// Case 1: x's brother is red. It could transfer to Case 2/3/4.
+					brother->color = ctype::BLACK;
+					parent->color = ctype::RED;
+					right_rotate(parent);
+					brother = parent->left;
+				}
+				if (brother->left->color == ctype::BLACK 
+					&& brother->right->color == ctype::BLACK) {
+				// Case 2: black brother and black brotherson.
+					brother->color = ctype::RED;
+					x = parent;
+				} else {
+				// Case 3/4: black brother and one or two red son.
+					if (brother->left->color == ctype::BLACK) {
+					// Case 3: black leftson and red rightson
+						brother->right->color = ctype::BLACK;
+						brother->color = ctype::RED;
+						left_rotate(brother);
+					}
+					// Case 4: black brother and red left brotherson.
+					brother->color = parent->color;
+					parent->color = ctype::BLACK;
+					brother->left->color = ctype::BLACK;
+					right_rotate(parent);
+					x = root;
+				}
+			}
+		}
+		x->color = ctype::BLACK;
 	}
 
 	sptr minimum(sptr x) {
