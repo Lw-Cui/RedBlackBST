@@ -35,10 +35,23 @@ public:
 		insert_fixup(z);
 	}
 
+	void del(int k) {
+		sptr y{nil}, x{root};
+		while (x != nil) {
+			y = x;
+			if (k < x->data) x = x->left;
+			else if (k > x->data) x = x->right;
+			else break;
+		}
+		if (x != nil) del(y);
+	}
+
 	void del(sptr z) {
 		sptr successor;
 		sptr breaker; // the node that breaks the rule
-		ctype origin_color = successor->color;
+		// the position of z will be replaced by breaker
+		// So the breaker has two color (second_color and its original color)
+		ctype second_color = z->color;
 		if (z->left == nil) {
 			// z only has rightson
 			breaker = z->right;
@@ -50,7 +63,9 @@ public:
 		} else {
 			// z has two son
 			successor = minimum(z->right);
-			origin_color = successor->color;
+			// the position of successor now is replaced by breaker
+		// So the breaker has two color (second_color and its original color)
+			second_color = successor->color;
 			breaker = successor->right;
 			sptr parent{successor->parent.lock()};
 			if (parent != z) {
@@ -64,7 +79,7 @@ public:
 			successor->left->parent = successor;
 			successor->color = z->color;
 		}
-		if (origin_color == ctype::BLACK)
+		if (second_color == ctype::BLACK)
 			// we regard breaker has another "black" color,
 			// which occupied the position of successor
 			delete_fixup(breaker);
