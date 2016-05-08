@@ -126,7 +126,6 @@ private:
 					brother->color = ctype::BLACK;
 					x->parent()->color = ctype::RED;
 					left_rotate(x->parent());
-					brother = x->parent()->right;
 				}
 				if (brother->left->color == ctype::BLACK 
 					&& brother->right->color == ctype::BLACK) {
@@ -142,7 +141,6 @@ private:
 						right_rotate(brother);
 					}
 					// Case 4: black brother and red left brotherson.
-					brother = x->parent()->right;
 					brother->color = x->parent()->color;
 					x->parent()->color = ctype::BLACK;
 					brother->right->color = ctype::BLACK;
@@ -157,7 +155,6 @@ private:
 					brother->color = ctype::BLACK;
 					x->parent()->color = ctype::RED;
 					right_rotate(x->parent());
-					brother = x->parent()->left;
 				}
 				if (brother->left->color == ctype::BLACK 
 					&& brother->right->color == ctype::BLACK) {
@@ -173,7 +170,6 @@ private:
 						left_rotate(brother);
 					}
 					// Case 4: black brother and red left brotherson.
-					brother = x->parent()->left;
 					brother->color = x->parent()->color;
 					x->parent()->color = ctype::BLACK;
 					brother->left->color = ctype::BLACK;
