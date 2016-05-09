@@ -28,8 +28,9 @@ public:
 
 class RedBlackBST {
 public:
-	int length = 0;
+	int length;
 	std::vector<int> get_data() {
+		length = 0;
 		std::vector<int> v;
 		get_data(root, v, 0);
 		return std::move(v);
@@ -258,6 +259,7 @@ private:
 		// turn y's right subtree into x's left subtree
 		x->left = y->right;
 		// TODO: Could we cancel the condition (y->right != nil)?
+		/* NO */
 		if (y->right != nil) y->right->p = x;
 		// link x's parent to y
 		y->p = x->p;
@@ -272,7 +274,8 @@ private:
 		sptr y{x->right};
 		// turn y's left subtree into x's right subtree
 		x->right = y->left;
-		// !!!!!
+		// TODO: Could we cancel the condition (y->left != nil)?
+		/* NO */
 		if (y->left != nil) y->left->p = x;
 		// link x's parent to y
 		y->p = x->p;
