@@ -1,5 +1,6 @@
 _Pragma("once")
 #include <memory>
+#include <iostream>
 #include <vector>
 
 struct Node;
@@ -12,6 +13,11 @@ public:
 		:data{d}, p{_p}, left{l}, right{r}, color{c} {}
 	Node(ctype c):color{c} {}
 	sptr parent() {return p.lock();}
+	void dump() {
+		std::cout << "data: " << data << std::endl
+			<< "left: " << left << std::endl 
+			<< "right: " << right << std::endl;
+	}
 	int data;
 	int count = 1;
 	wptr p;
@@ -36,6 +42,8 @@ public:
 		}
 		if (pos->color == ctype::BLACK) len++;
 		get_data(pos->left, v, len);
+		if (pos->color == ctype::RED && pos->parent()->color == ctype::RED)
+			assert(false);
 		for (int i = 0; i < pos->count; i++)
 			v.push_back(pos->data);
 		get_data(pos->right, v, len);
@@ -94,7 +102,10 @@ public:
 		// So the breaker has two color (second_color and its original color)
 			second_color = successor->color;
 			breaker = successor->right;
-			if (successor->parent() != z) {
+			/* FUCK MY LIFE */
+			if (successor->parent() == z) {
+				breaker->p = successor;
+			} else {
 				// if successor isn't adjacent to z
 				transplant(successor, successor->right);
 				successor->right = z->right;
@@ -117,7 +128,7 @@ private:
 		while (x != root && x->color == ctype::BLACK) {
 		// If x->color == RED then it means x is a red-black node.
 		// We could break the loop and set it to black
-			sptr brother;
+			sptr brother, parent = x->parent();
 			if (x == x->parent()->left) {
 			// x is leftson
 				brother = x->parent()->right;
@@ -126,6 +137,7 @@ private:
 					brother->color = ctype::BLACK;
 					x->parent()->color = ctype::RED;
 					left_rotate(x->parent());
+					brother = x->parent()->right;
 				}
 				if (brother->left->color == ctype::BLACK 
 					&& brother->right->color == ctype::BLACK) {
@@ -139,6 +151,7 @@ private:
 						brother->left->color = ctype::BLACK;
 						brother->color = ctype::RED;
 						right_rotate(brother);
+						brother = x->parent()->right;
 					}
 					// Case 4: black brother and red left brotherson.
 					brother->color = x->parent()->color;
@@ -155,6 +168,7 @@ private:
 					brother->color = ctype::BLACK;
 					x->parent()->color = ctype::RED;
 					right_rotate(x->parent());
+					brother = x->parent()->left;
 				}
 				if (brother->left->color == ctype::BLACK 
 					&& brother->right->color == ctype::BLACK) {
@@ -168,6 +182,7 @@ private:
 						brother->right->color = ctype::BLACK;
 						brother->color = ctype::RED;
 						left_rotate(brother);
+						brother = x->parent()->left;
 					}
 					// Case 4: black brother and red left brotherson.
 					brother->color = x->parent()->color;
@@ -243,7 +258,7 @@ private:
 		// turn y's right subtree into x's left subtree
 		x->left = y->right;
 		// TODO: Could we cancel the condition (y->right != nil)?
-		y->right->p = x;
+		if (y->right != nil) y->right->p = x;
 		// link x's parent to y
 		y->p = x->p;
 		if (x->parent() == nil) root = y;
@@ -257,7 +272,8 @@ private:
 		sptr y{x->right};
 		// turn y's left subtree into x's right subtree
 		x->right = y->left;
-		y->left->p = x;
+		// !!!!!
+		if (y->left != nil) y->left->p = x;
 		// link x's parent to y
 		y->p = x->p;
 		if (x->parent() == nil) root = y;
