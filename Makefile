@@ -1,5 +1,5 @@
 CC 	= g++-4.9 -std=c++14
-CXXFLAG	= -O0 -Wall -Wextra -W -ggdb3 -I. -pthread -L.
+CXXFLAG	= -O0 -Wall -Wextra -W -ggdb3 -I. -pthread -L. -fprofile-arcs -ftest-coverage
 UNITTEST_LIB = -lgtest-ia32
 
 test: test.o
